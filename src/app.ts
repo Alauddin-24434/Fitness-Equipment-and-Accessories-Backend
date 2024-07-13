@@ -3,12 +3,18 @@ import cors from 'cors'
 
 import notFound from './app/middlewares/notFound';
 import router from './app/routes';
-import { Product } from './app/modules/Product Management/product.model';
+
 const app :Application=express();
 
 
 app.use(express.json());
-app.use(cors());
+
+const corsOptions = {
+  origin: ['https://fitness-equipment-and-accessories-frontend.vercel.app','http://localhost:5173',],
+  credentials: true,
+  optionSuccessStatus: 200,
+}
+app.use(cors(corsOptions))
 
 // route
 app.use(router)

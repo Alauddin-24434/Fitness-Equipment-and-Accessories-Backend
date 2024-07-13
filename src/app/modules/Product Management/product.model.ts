@@ -15,7 +15,7 @@ const productSchema= new mongoose.Schema<TProduct>({
         required:[true, "description is Required"]
     },
     images: {
-        type: [String],
+        type: String,
         required:[true, "images is Required"]
     },
     category: {
@@ -26,9 +26,31 @@ const productSchema= new mongoose.Schema<TProduct>({
         type:Number,
         required:[true, "Stock is Required"]
     },
+    isDeleted:{
+        type:Boolean,
+        default:false
+    }
 },{timestamps:true})
 
 
+// Soft delete filter when getting all product
+productSchema.pre('find', async function(next){
+    this.find({isDeleted:{$ne:true}})
+    next()
+})
+
+
+// Soft delete filter when getting single product
+productSchema.pre('findOne', async function(next){
+    this.findOne({isDeleted:{$ne:true}})
+    next()
+})
+
+// Soft delete filter for aggregation queries
+productSchema.pre('aggregate', async function(next){
+    this.pipeline().unshift({$match: {isDeleted:{$ne:true}}})
+    next()
+})
 
 
 export const Product= model<TProduct>("Product", productSchema);
