@@ -11,4 +11,5 @@ router.post('/products', product_controller_1.productControllers.createProduct);
 router.get('/products', product_controller_1.productControllers.getAllProducts);
 router.delete('/products/:id', product_controller_1.productControllers.deleteProductById);
 router.get('/products/:id', product_controller_1.productControllers.getSingleProductById);
+router.get('/products/catName', product_controller_1.productControllers.getProductCategories);
 exports.productRoutes = router;

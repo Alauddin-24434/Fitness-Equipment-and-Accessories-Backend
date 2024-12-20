@@ -49,9 +49,19 @@ const getSingleProductByIdFromDB = (id) => __awaiter(void 0, void 0, void 0, fun
     const result = yield product_model_1.Product.findById({ _id: id });
     return result;
 });
+const getProductCategoriesFomDB = () => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const categories = yield product_model_1.Product.distinct('category');
+        return categories;
+    }
+    catch (error) {
+        throw new Error(`Failed to fetch product categories: ${error.message}`);
+    }
+});
 exports.productServices = {
     createProductIntoDB,
     getAllProductsFromDB,
     deleteProductByIdFromDB,
-    getSingleProductByIdFromDB
+    getSingleProductByIdFromDB,
+    getProductCategoriesFomDB
 };

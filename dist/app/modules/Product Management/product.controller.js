@@ -48,6 +48,31 @@ const getAllProducts = (0, catchAsync_1.default)((req, res) => __awaiter(void 0,
         });
     }
 }));
+// Route handler to fetch products by category
+const getProductCategories = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        // Call service function to fetch unique product categories
+        const categoryResult = yield product_services_1.productServices.getProductCategoriesFomDB();
+        // Respond with success message and retrieved categories
+        (0, sendResponse_1.default)(res, {
+            statusCode: http_status_1.default.OK,
+            success: true,
+            message: "Product categories received successfully",
+            data: categoryResult
+        });
+    }
+    catch (error) {
+        const errorMessage = error.message || "Failed to fetch product categories.";
+        const statusCode = http_status_1.default.INTERNAL_SERVER_ERROR;
+        // Send error response
+        (0, sendResponse_1.default)(res, {
+            statusCode,
+            success: false,
+            message: errorMessage,
+            data: null
+        });
+    }
+});
 const deleteProductById = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const id = req.params.id;
     const deletedResult = yield product_services_1.productServices.deleteProductByIdFromDB(id);
@@ -73,5 +98,6 @@ exports.productControllers = {
     createProduct,
     getAllProducts,
     deleteProductById,
-    getSingleProductById
+    getSingleProductById,
+    getProductCategories
 };

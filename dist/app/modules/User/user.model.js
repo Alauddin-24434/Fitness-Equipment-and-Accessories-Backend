@@ -17,8 +17,6 @@ exports.User = void 0;
 const mongoose_1 = require("mongoose");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const config_1 = __importDefault(require("../../config"));
-const AppError_1 = __importDefault(require("../../error/AppError"));
-const http_status_1 = __importDefault(require("http-status"));
 const userSchema = new mongoose_1.Schema({
     name: {
         type: String,
@@ -39,6 +37,7 @@ const userSchema = new mongoose_1.Schema({
     },
 }, {
     timestamps: true,
+    versionKey: false, // Disable the __v field
     toJSON: {
         transform: function (doc, ret) {
             delete ret.password;
@@ -54,15 +53,6 @@ const userSchema = new mongoose_1.Schema({
 });
 userSchema.pre("save", function (next) {
     return __awaiter(this, void 0, void 0, function* () {
-        const isUserEmailExist = yield exports.User.findOne({ email: this.email });
-        if (isUserEmailExist) {
-            throw new AppError_1.default(http_status_1.default.NOT_ACCEPTABLE, "This email is already exist!");
-        }
-        next();
-    });
-});
-userSchema.pre("save", function (next) {
-    return __awaiter(this, void 0, void 0, function* () {
         const user = this;
         if (user.isModified("password")) {
             user.password = yield bcrypt_1.default.hash(user.password, Number(config_1.default.bcrypt_salt_rounds));
@@ -70,11 +60,6 @@ userSchema.pre("save", function (next) {
         next();
     });
 });
-userSchema.statics.isUserExistsByEmail = function (email) {
-    return __awaiter(this, void 0, void 0, function* () {
-        return yield exports.User.findOne({ email });
-    });
-};
 userSchema.statics.isPasswordMatched = function (plainTextPassword, hashedPassword) {
     return __awaiter(this, void 0, void 0, function* () {
         return yield bcrypt_1.default.compare(plainTextPassword, hashedPassword);

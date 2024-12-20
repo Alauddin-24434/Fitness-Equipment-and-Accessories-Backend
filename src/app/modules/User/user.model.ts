@@ -3,8 +3,7 @@ import { model, Schema } from "mongoose";
 import { TUser, UserModel } from "./user.interface";
 import bcrypt from "bcrypt";
 import config from "../../config";
-import AppError from "../../error/AppError";
-import httpStatus from "http-status";
+
 
 const userSchema = new Schema<TUser, UserModel>(
   {
@@ -31,6 +30,7 @@ const userSchema = new Schema<TUser, UserModel>(
   },
   {
     timestamps: true,
+    versionKey: false, // Disable the __v field
     toJSON: {
       transform: function (doc, ret) {
         delete ret.password;
@@ -46,16 +46,7 @@ const userSchema = new Schema<TUser, UserModel>(
   },
 );
 
-userSchema.pre("save", async function (next) {
-  const isUserEmailExist = await User.findOne({ email: this.email });
-  if (isUserEmailExist) {
-    throw new AppError(
-      httpStatus.NOT_ACCEPTABLE,
-      "This email is already exist!",
-    );
-  }
-  next();
-});
+
 
 userSchema.pre("save", async function (next) {
   const user = this;
@@ -69,9 +60,7 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
-userSchema.statics.isUserExistsByEmail = async function (email: string) {
-  return await User.findOne({ email });
-};
+
 
 userSchema.statics.isPasswordMatched = async function (
   plainTextPassword,

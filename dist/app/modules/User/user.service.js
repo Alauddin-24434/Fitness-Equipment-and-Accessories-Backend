@@ -12,7 +12,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.userServices = void 0;
 const user_model_1 = require("./user.model");
 const createUserIntoDB = (payload) => __awaiter(void 0, void 0, void 0, function* () {
-    const newUser = yield user_model_1.User.create(payload);
-    return newUser;
+    try {
+        // Check if a user with the same email already exists
+        const existingUser = yield user_model_1.User.findOne({ email: payload.email });
+        if (existingUser) {
+            throw new Error("User already exists with this email");
+        }
+        const newUser = yield user_model_1.User.create(payload);
+        return newUser;
+    }
+    catch (error) {
+        throw new Error(`Failed to create user: ${error.message}`);
+    }
 });
 exports.userServices = { createUserIntoDB };

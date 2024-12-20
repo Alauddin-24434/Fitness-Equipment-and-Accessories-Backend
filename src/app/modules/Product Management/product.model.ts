@@ -30,7 +30,7 @@ const productSchema= new mongoose.Schema<TProduct>({
         type:Boolean,
         default:false
     }
-},{timestamps:true})
+},{timestamps:true,  versionKey: false},)
 
 
 // Soft delete filter when getting all product

@@ -3,7 +3,7 @@ import { productServices } from "./product.services";
 import httpStatus from "http-status";
 import catchAsync from "../../utils/catchAsync";
 import sendResponse from "../../utils/sendResponse";
-
+import { Request, Response } from "express";
 
 
 const createProduct = catchAsync(async (req, res) => {
@@ -44,6 +44,34 @@ const getAllProducts= catchAsync(async (req, res)=>{
   }
 })
 
+// Route handler to fetch products by category
+const getProductCategories = async (req: Request,res:Response) => {
+    try {
+        // Call service function to fetch unique product categories
+        const categoryResult = await productServices.getProductCategoriesFomDB();
+
+        // Respond with success message and retrieved categories
+        sendResponse(res, {
+            statusCode: httpStatus.OK,
+            success: true,
+            message: "Product categories received successfully",
+            data: categoryResult
+        });
+
+    } catch (error:any) {
+        const errorMessage = error.message || "Failed to fetch product categories.";
+        const statusCode = httpStatus.INTERNAL_SERVER_ERROR;
+
+        // Send error response
+        sendResponse(res, {
+            statusCode,
+            success: false,
+            message: errorMessage,
+            data: null
+        });
+    }
+};
+
 
 const deleteProductById= catchAsync(async(req,res)=>{
     const id= req.params.id;
@@ -74,6 +102,7 @@ export const productControllers={
     createProduct,
     getAllProducts,
     deleteProductById,
-    getSingleProductById
+    getSingleProductById,
+    getProductCategories
    
 }

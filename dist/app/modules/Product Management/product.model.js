@@ -63,7 +63,7 @@ const productSchema = new mongoose_1.default.Schema({
         type: Boolean,
         default: false
     }
-}, { timestamps: true });
+}, { timestamps: true, versionKey: false });
 // Soft delete filter when getting all product
 productSchema.pre('find', function (next) {
     return __awaiter(this, void 0, void 0, function* () {

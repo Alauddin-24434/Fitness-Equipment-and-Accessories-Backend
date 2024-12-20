@@ -10,6 +10,7 @@ router.post('/products', productControllers.createProduct);
 router.get('/products', productControllers.getAllProducts);
 router.delete('/products/:id', productControllers.deleteProductById);
 router.get('/products/:id', productControllers.getSingleProductById);
+router.get('/products/catName' , productControllers.getProductCategories)
 
 
 export const productRoutes= router;

@@ -13,33 +13,75 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthServices = void 0;
-const http_status_1 = __importDefault(require("http-status"));
-const AppError_1 = __importDefault(require("../../error/AppError"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const config_1 = __importDefault(require("../../config"));
 const user_model_1 = require("../User/user.model");
 const loginUser = (payload) => __awaiter(void 0, void 0, void 0, function* () {
-    // checking if the user is exist
-    const user = yield user_model_1.User.isUserExistsByEmail(payload.email);
-    if (!user) {
-        throw new AppError_1.default(http_status_1.default.NOT_FOUND, "This user is not found !");
+    try {
+        // Check if the user exists
+        const user = yield user_model_1.User.findOne({ email: payload.email });
+        if (!user) {
+            throw new Error("User not found");
+        }
+        // Check if the password is correct
+        const isPasswordMatched = yield user_model_1.User.isPasswordMatched(payload.password, user.password);
+        if (!isPasswordMatched) {
+            throw new Error("Incorrect password");
+        }
+        // Create a jwt token
+        const jwtPayload = {
+            userId: user.id,
+            role: user.role,
+        };
+        const accessToken = jsonwebtoken_1.default.sign(jwtPayload, config_1.default.jwt_access_secret, {
+            expiresIn: "10d",
+        });
+        return {
+            accessToken,
+            user,
+        };
     }
-    //checking if the password is correct
-    if (!(yield user_model_1.User.isPasswordMatched(payload === null || payload === void 0 ? void 0 : payload.password, user === null || user === void 0 ? void 0 : user.password)))
-        throw new AppError_1.default(http_status_1.default.FORBIDDEN, "Password do not matched");
-    // create a jwt token
-    const jwtPayload = {
-        userId: user === null || user === void 0 ? void 0 : user.id,
-        role: user.role,
-    };
-    const accessToken = jsonwebtoken_1.default.sign(jwtPayload, config_1.default.jwt_access_secret, {
-        expiresIn: "10d",
-    });
-    return {
-        accessToken,
-        user,
-    };
+    catch (error) {
+        throw new Error(`Login failed: ${error.message}`);
+    }
+});
+const getUserByIdFromDB = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const user = yield user_model_1.User.findById(id);
+        if (!user) {
+            throw new Error("User not found");
+        }
+        return user;
+    }
+    catch (error) {
+        throw new Error(`Failed to fetch user by id: ${error.message}`);
+    }
+});
+const getUserAuthValid = (token) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const decoded = jsonwebtoken_1.default.verify(token, config_1.default.jwt_access_secret);
+        console.log(decoded); // Log decoded token to console
+        const { userId } = decoded;
+        const user = yield user_model_1.User.findById(userId);
+        if (!user) {
+            throw new Error("User not found");
+        }
+        return user;
+    }
+    catch (error) {
+        if (error instanceof jsonwebtoken_1.default.TokenExpiredError) {
+            throw new Error("Token expired");
+        }
+        else if (error instanceof jsonwebtoken_1.default.JsonWebTokenError) {
+            throw new Error("Invalid token");
+        }
+        else {
+            throw new Error(`Failed to verify token: ${error.message}`);
+        }
+    }
 });
 exports.AuthServices = {
     loginUser,
+    getUserByIdFromDB,
+    getUserAuthValid
 };

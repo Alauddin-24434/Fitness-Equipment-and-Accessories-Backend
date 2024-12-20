@@ -1,5 +1,6 @@
 import express, { Application, Request, Response } from 'express';
 import cors from 'cors'
+import cookieParser from 'cookie-parser';
 
 import notFound from './app/middlewares/notFound';
 import router from './app/routes';
@@ -15,7 +16,7 @@ const corsOptions = {
   optionSuccessStatus: 200,
 }
 app.use(cors(corsOptions))
-
+app.use(cookieParser());
 // route
 app.use(router)
 

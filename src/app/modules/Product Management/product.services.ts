@@ -1,5 +1,4 @@
-import httpStatus from "http-status";
-import AppError from "../../error/AppError";
+
 import { TProduct } from "./product.interface";
 import { Product } from "./product.model";
 
@@ -64,8 +63,14 @@ const getSingleProductByIdFromDB= async (id:string)=>{
     return result;
 }
 
-
-
+const getProductCategoriesFomDB = async () => {
+    try {
+        const categories = await Product.distinct('category');
+        return categories;
+    } catch (error:any) {
+        throw new Error(`Failed to fetch product categories: ${error.message}`);
+    }
+};
 
 
 
@@ -73,7 +78,9 @@ export const productServices={
     createProductIntoDB,
     getAllProductsFromDB,
     deleteProductByIdFromDB,
-    getSingleProductByIdFromDB
+    getSingleProductByIdFromDB,
+    getProductCategoriesFomDB 
+ 
 
 
 }
